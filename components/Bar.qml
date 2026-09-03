@@ -11,13 +11,13 @@ PanelWindow {
 
   margins {
     top: 8
-
   }
-  
+
+  color: "transparent"
+
   implicitHeight: 33
   implicitWidth: spotify.playing ? clockText.width + mediaIcon.width + songText.width + 48 : 102
   
-  color: "transparent"
 
   Rectangle {
     anchors.fill: parent
