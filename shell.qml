@@ -1,5 +1,8 @@
+//@ pragma UseQApplication
+
 import QtQuick
 import Quickshell
+import Quickshell.Services.SystemTray
 import qs.components
 
 ShellRoot {
@@ -12,8 +15,11 @@ ShellRoot {
     id: spotify
   }
 
-  PanelWindow {
+  PanelWindow { 
+    id: panel
     screen: Quickshell.screens.find(s => s.name === "HDMI-A-3")
+
+    color: "transparent"
 
     anchors {
       top: true
@@ -92,6 +98,78 @@ ShellRoot {
       font.family: "Figtree"
       font.pixelSize: 20
       font.bold: true
+      }
+    }
+
+    Item { // System Tray
+      id: systemTray
+      
+      anchors {
+        right: parent.right
+
+      }
+
+      height: parent.height
+      width: trayRow.width + 30
+
+      Rectangle {
+        color: "#2f2d2e"
+        anchors.fill: parent
+
+        radius: 24
+
+        Row {
+          id: trayRow
+
+          anchors.centerIn: parent
+
+          layoutDirection: Qt.RightToLeft
+          spacing: 8
+          
+          Repeater {
+            model: SystemTray.items
+
+            delegate: Item {
+              required property var modelData
+
+              width: 20
+              height: 20
+
+              Image {
+                anchors.fill: parent
+
+                source: modelData.icon
+
+                fillMode: Image.PreserveAspectFit
+
+              }
+
+              MouseArea {
+                anchors.fill: parent
+
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                onClicked: mouse => {
+                  if (mouse.button === Qt.LeftButton) {
+                    modelData.activate()
+                  }
+
+                  if (mouse.button === Qt.RightButton) {
+                    console.log("RIGHT CLICK:", modelData.title, modelData.hasMenu)
+
+                    if (modelData.hasMenu) {
+                      modelData.display(
+                        panel,
+                        mouse.x,
+                        mouse.y
+                      )
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   } 
