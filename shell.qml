@@ -15,6 +15,13 @@ ShellRoot {
     id: spotify
   }
 
+  TrayMenu {
+        id: trayMenu
+        anchor.window: panel
+        anchor.rect.x: systemTray.mapToItem(null, systemTray.width, 0).x - width
+        anchor.rect.y: systemTray.mapToItem(null, 0, systemTray.height).y + 8
+    }
+
   PanelWindow { 
     id: panel
     screen: Quickshell.screens.find(s => s.name === "HDMI-A-3")
@@ -155,14 +162,11 @@ ShellRoot {
                   }
 
                   if (mouse.button === Qt.RightButton) {
-                    console.log("RIGHT CLICK:", modelData.title, modelData.hasMenu)
-
-                    if (modelData.hasMenu) {
-                      modelData.display(
-                        panel,
-                        mouse.x,
-                        mouse.y
-                      )
+                    if (modelData.menu) {
+                      const pos = mapToItem(null, mouse.x, mouse.y)
+                      trayMenu.trayItem = modelData
+                    } else {
+                     modelData.secondaryActivate()
                     }
                   }
                 }
