@@ -3,6 +3,8 @@
 import QtQuick
 import Quickshell
 import Quickshell.Services.SystemTray
+import Quickshell.Hyprland
+import Qt5Compat.GraphicalEffects
 import qs.components
 
 ShellRoot {
@@ -22,7 +24,7 @@ ShellRoot {
         anchor.rect.y: systemTray.mapToItem(null, 0, systemTray.height).y + 8
     }
 
-  PanelWindow { 
+  PanelWindow { //Monitor HDMI-A-3
     id: panel
     screen: Quickshell.screens.find(s => s.name === "HDMI-A-3")
 
@@ -38,7 +40,7 @@ ShellRoot {
       right: 8
     }
 
-    implicitHeight: 33
+    implicitHeight: 30
     implicitWidth: 1900
 
     Item { // Center Bar
@@ -78,7 +80,7 @@ ShellRoot {
 
         visible: spotify.playing
         
-        source: "assets/mediaIcon.png"
+        source: "assets/icons/music-playing.png"
 
         width: 22
         height: 22
@@ -177,4 +179,86 @@ ShellRoot {
       }
     }
   } 
+
+  PanelWindow { // Monitor DP-2
+    screen: Quickshell.screens.find(s => s.name === "DP-2")
+
+    anchors {
+      top: true
+    }
+
+    margins {
+      top: 5
+      left: 5
+      right: 5
+    }
+
+    color: "transparent"
+
+    implicitHeight: 33
+    implicitWidth: 1340
+
+    Item {
+      anchors.centerIn: parent
+
+      width: workspaceIndicator.width > 0 ? workspaceIndicator.width + 20 : 0
+      height: parent.height
+
+      Rectangle {
+        color: "#2f2d2e"
+        anchors.fill: parent
+        radius: 24
+      }
+
+      Row {
+        id: workspaceIndicator
+        anchors.centerIn: parent
+        spacing: 6
+
+        property var workspaceIcons: ({
+          "music": "assets/icons/music.png",
+          "chat": "assets/icons/chat.png"
+        })
+
+        Repeater {
+          model: Hyprland.workspaces
+
+          delegate: Rectangle {
+            required property var modelData
+            property color accent: Colors.accentFor(modelData.name)
+
+            visible: modelData.monitor && modelData.monitor.name === "DP-2"
+
+            width: 24
+            height: 24
+            radius: 24
+            color: modelData.active ? accent : Colors.background
+            border.color: accent
+            border.width: modelData.active ? 0 : 1
+
+            Image {
+                id: icon
+                anchors.centerIn: parent
+                width: 16
+                height: 16
+                fillMode: Image.PreserveAspectFit
+                source: workspaceIndicator.workspaceIcons[modelData.name] ?? ""
+                visible: false
+            }
+
+            ColorOverlay {
+                anchors.fill: icon
+                source: icon
+                color: modelData.active ? Colors.background : accent
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: modelData.activate()
+            }
+          }
+        }
+      }
+    }
+  }
 }
