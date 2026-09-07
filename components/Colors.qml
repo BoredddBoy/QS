@@ -12,12 +12,29 @@ QtObject {
         "yellow": "#F8C630",
         "green": "#9DC90A",
         "blue": "#197BBD",
-        "pink": "#EE4266"   
+        "pink": "#EE4266",
+        "orange": "#F17105",
+        "cyan": "#4ECDC4",
+        "purple": "#A480CF"
     })
 
     readonly property var workspaceColors: ({
         "music": "yellow",
-        "chat": "pink"   
+        "chat": "pink",
+        "stream": "blue",
+        "home": "green",
+        "code": "cyan",
+        "design": "yellow",
+        "game": "orange",
+        "launcher": "orange",
+        "media": "purple",
+        "settings": "backgroundAlt",
+        "network-settings": "backgroundAlt",
+
+        "1": "backgroundAlt",
+        "2": "backgroundAlt",
+        "3": "backgroundAlt",
+        "4": "backgroundAlt",
     })
 
     function accentFor(name) {

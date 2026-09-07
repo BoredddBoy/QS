@@ -178,7 +178,83 @@ ShellRoot {
         }
       }
     }
-  } 
+
+    Item { // Workspace Indicator
+      anchors.left: parent
+
+      width: workspaceIndicatorHDMI.width > 0 ? workspaceIndicatorHDMI.width + 20 : 0
+      height: parent.height
+
+      Rectangle {
+        color: "#2f2d2e"
+        anchors.fill: parent
+        radius: 24
+      }
+
+      Row {
+        id: workspaceIndicatorHDMI
+        anchors.centerIn: parent
+        spacing: 6
+
+        property var workspaceIcons: ({
+          "home": "assets/icons/home.png",
+          "code": "assets/icons/code.png",
+          "design": "assets/icons/design.png",
+          "game": "assets/icons/game.png",
+          "launcher": "assets/icons/launcher.png",
+          "media": "assets/icons/media.png",
+          "settings": "assets/icons/settings.png",
+          "network-settings": "assets/icons/network-settings.png",
+
+          "1": "assets/icons/1.png",
+          "2": "assets/icons/2.png",
+          "3": "assets/icons/3.png",
+          "4": "assets/icons/4.png"
+
+
+        })
+
+        Repeater {
+          model: Hyprland.workspaces
+
+          delegate: Rectangle {
+            required property var modelData
+            property color accent: Colors.accentFor(modelData.name)
+
+            visible: modelData.monitor && modelData.monitor.name === "HDMI-A-3"
+
+            width: 24
+            height: 24
+            radius: 24
+            color: modelData.active ? accent : Colors.background
+            border.color: accent
+            border.width: modelData.active ? 0 : 1
+
+            Image {
+                id: icon
+                anchors.centerIn: parent
+                width: 16
+                height: 16
+                fillMode: Image.PreserveAspectFit
+                source: workspaceIndicatorHDMI.workspaceIcons[modelData.name] ?? ""
+                visible: false
+            }
+
+            ColorOverlay {
+                anchors.fill: icon
+                source: icon
+                color: modelData.active ? Colors.background : accent
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: modelData.activate()
+            }
+          }
+        }
+      }
+    }
+  }
 
   PanelWindow { // Monitor DP-2
     screen: Quickshell.screens.find(s => s.name === "DP-2")
@@ -198,10 +274,10 @@ ShellRoot {
     implicitHeight: 33
     implicitWidth: 1340
 
-    Item {
+    Item { 
       anchors.centerIn: parent
 
-      width: workspaceIndicator.width > 0 ? workspaceIndicator.width + 20 : 0
+      width: workspaceIndicatorDP.width > 0 ? workspaceIndicatorDP.width + 20 : 0
       height: parent.height
 
       Rectangle {
@@ -211,13 +287,21 @@ ShellRoot {
       }
 
       Row {
-        id: workspaceIndicator
+        id: workspaceIndicatorDP
         anchors.centerIn: parent
         spacing: 6
 
         property var workspaceIcons: ({
           "music": "assets/icons/music.png",
-          "chat": "assets/icons/chat.png"
+          "chat": "assets/icons/chat.png",
+          "stream": "assets/icons/stream.png",
+          "settings": "assets/icons/settings.png",
+          "network-settings": "assets/icons/network-settings.png",
+
+          "1": "assets/icons/1.png",
+          "2": "assets/icons/2.png",
+          "3": "assets/icons/3.png",
+          "4": "assets/icons/4.png"
         })
 
         Repeater {
@@ -242,7 +326,7 @@ ShellRoot {
                 width: 16
                 height: 16
                 fillMode: Image.PreserveAspectFit
-                source: workspaceIndicator.workspaceIcons[modelData.name] ?? ""
+                source: workspaceIndicatorDP.workspaceIcons[modelData.name] ?? ""
                 visible: false
             }
 
