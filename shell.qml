@@ -3,11 +3,13 @@
 import QtQuick
 import Quickshell
 import Quickshell.Services.SystemTray
+import Quickshell.Services.Pipewire 
 import Quickshell.Hyprland
 import Qt5Compat.GraphicalEffects
 import qs.components
 
 ShellRoot {
+
 
   Clock {
     id: clock
@@ -15,6 +17,10 @@ ShellRoot {
 
   Spotify {
     id: spotify
+  }
+
+  VolumeOSD {
+    id: volumeOsd
   }
 
   TrayMenu {
@@ -27,6 +33,8 @@ ShellRoot {
   PanelWindow { //Monitor HDMI-A-3
     id: panel
     screen: Quickshell.screens.find(s => s.name === "HDMI-A-3")
+
+    property alias clockBarWidth: bar.width
 
     color: "transparent"
 
@@ -44,6 +52,18 @@ ShellRoot {
     implicitWidth: 1900
 
     Item { // Center Bar
+
+      function findSpotifyNode() {
+        const nodes = Pipewire.nodes.values
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i]
+          const appName = node.properties ? node.properties["application.name"] : ""
+          if (node.audio && appName && appName.toLowerCase().includes("spotify")) {
+            return node
+          }
+        }
+        return null
+      }
 
       id: bar
 
@@ -108,6 +128,36 @@ ShellRoot {
       font.pixelSize: 20
       font.bold: true
       }
+
+      MouseArea {
+        anchors.fill: parent
+        enabled: spotify.playing
+        acceptedButtons: Qt.NoButton
+
+        onWheel: wheel => {
+          const node = bar.findSpotifyNode()
+          console.log("spotifyNode:", node ? node.name : "null")
+
+          if (!node || !node.ready || !node.audio) {
+            console.log("node not ready or not found, bailing out")
+            return
+          }
+
+          const step = 0.05
+          let vol = node.audio.volume
+
+          if (wheel.angleDelta.y > 0) {
+            vol = Math.min(1.0, vol + step)
+          } else {
+            vol = Math.max(0.0, vol - step)
+          }
+
+          node.audio.muted = false
+          node.audio.volume = vol
+
+          wheel.accepted = true
+        }
+      }
     }
 
     Item { // System Tray
@@ -119,7 +169,7 @@ ShellRoot {
       }
 
       height: parent.height
-      width: trayRow.width + 30
+      width: trayRow.width > 0 ? trayRow.width + 20 : 0
 
       Rectangle {
         color: "#2f2d2e"
@@ -297,6 +347,7 @@ ShellRoot {
           "stream": "assets/icons/stream.png",
           "settings": "assets/icons/settings.png",
           "network-settings": "assets/icons/network-settings.png",
+          "resolveViewer": "assets/icons/resolveViewer.png",
 
           "1": "assets/icons/1.png",
           "2": "assets/icons/2.png",
